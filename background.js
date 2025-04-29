@@ -102,26 +102,48 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       return; // Nie wykonuj skanowania na chronionych stronach
     }
     
-    // Pobierz zapisane znaki
-    chrome.storage.sync.get({ invisibleChars: defaultChars }, (data) => {
-      const chars = data.invisibleChars;
-      
-      // Sprawdź, czy wszystkie znaki mają poprawny format
-      const validChars = chars.filter(char => char.value);
-      
-      if (validChars.length > 0) {
-        // Wykonaj skanowanie strony
-        chrome.scripting.executeScript({
-          target: { tabId },
-          function: highlightInvisibleChars,
-          args: [validChars]
-        }).catch(error => {
-          console.error('Błąd podczas wykonywania skryptu:', error);
-        });
+    scanTab(tabId);
+  }
+});
+
+// Nasłuchuj na aktywację karty (przełączenie między kartami)
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  // Jeśli tryb automatyczny jest włączony
+  if (autoScanEnabled) {
+    // Pobierz informacje o aktywnej karcie
+    chrome.tabs.get(activeInfo.tabId, (tab) => {
+      // Sprawdź, czy URL nie jest typu chrome:// lub about:
+      if (tab.url && (tab.url.startsWith('chrome://') || tab.url.startsWith('about:'))) {
+        console.log('Pominięto skanowanie chronionej strony:', tab.url);
+        return; // Nie wykonuj skanowania na chronionych stronach
       }
+      
+      scanTab(activeInfo.tabId);
     });
   }
 });
+
+// Funkcja do skanowania karty - wydzielona, aby uniknąć duplikacji kodu
+function scanTab(tabId) {
+  // Pobierz zapisane znaki
+  chrome.storage.sync.get({ invisibleChars: defaultChars }, (data) => {
+    const chars = data.invisibleChars;
+    
+    // Sprawdź, czy wszystkie znaki mają poprawny format
+    const validChars = chars.filter(char => char.value);
+    
+    if (validChars.length > 0) {
+      // Wykonaj skanowanie strony
+      chrome.scripting.executeScript({
+        target: { tabId },
+        function: highlightInvisibleChars,
+        args: [validChars]
+      }).catch(error => {
+        console.error('Błąd podczas wykonywania skryptu:', error);
+      });
+    }
+  });
+}
 
 // Funkcja wykonywana na stronie - skopiowana z content.js
 function highlightInvisibleChars(chars) {

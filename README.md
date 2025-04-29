@@ -152,6 +152,11 @@ Struktura projektu:
 
 ## Ostatnie aktualizacje
 
+### Wersja 1.3 (29.04.2025)
+- Naprawiono działanie trybu automatycznego przy przełączaniu między kartami
+- Zoptymalizowano kod do skanowania kart poprzez wydzielenie wspólnej funkcjonalności
+- Poprawiono obsługę zdarzeń przeglądarki dla lepszego wykrywania znaków
+
 ### Wersja 1.2 (29.04.2025)
 - Ulepszono interfejs użytkownika z rozwijanymi sekcjami funkcji
 - Dodano obsługę chronionych stron (chrome://, about://)
