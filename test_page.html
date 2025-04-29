@@ -39,6 +39,15 @@
             padding: 10px;
             border-radius: 5px;
         }
+        .new {
+            background-color: #fcf3cf;
+            padding: 5px;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 0.8em;
+            margin-left: 5px;
+            color: #b7950b;
+        }
         code {
             background-color: #f1f1f1;
             padding: 2px 4px;
@@ -70,6 +79,7 @@
     
     <div class="info">
         <p><strong>Wskazówka:</strong> Kliknij ikonę wtyczki, a następnie przycisk "Podświetl niewidoczne znaki", aby zobaczyć wszystkie ukryte znaki na tej stronie.</p>
+        <p><strong>Nowość:</strong> Wtyczka obsługuje teraz Dokumenty Google i zawiera rozszerzoną listę 85+ znaków specjalnych!</p>
     </div>
 
     <h2>Przykłady z niewidocznymi znakami</h2>
@@ -124,6 +134,60 @@
         <p>Medium mathematical space (U+205F): "a b"</p>
     </div>
 
+    <h2>Nowe znaki specjalne i interpunkcyjne <span class="new">NOWOŚĆ!</span></h2>
+
+    <div class="example">
+        <div class="example-title">1. Znaki interpunkcyjne, które mogą wyglądać podobnie</div>
+        <p>Normalna kropka: . (U+002E)</p>
+        <p>Pełnowymiarowa kropka: ． (U+FF0E)</p>
+        <p>Normalny średnik: ; (U+003B)</p>
+        <p>Grecki znak zapytania: ; (U+037E)</p>
+        <p>Myślnik: - (U+002D)</p>
+        <p>En dash: – (U+2013)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">2. Cudzysłowy</div>
+        <p>Cudzysłowy proste: 'tekst' (ASCII U+0027)</p>
+        <p>Cudzysłowy typograficzne pojedyncze: 'tekst' (U+2018, U+2019)</p>
+        <p>Cudzysłowy typograficzne podwójne: "tekst" (U+201C, U+201D)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">3. Znaki kontrolne</div>
+        <p>Ten tekst zawiera znaki kontrolne: Tab (	), End of text (), Line tabulation (), Carriage Return (
+)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">4. Specjalne znaki białe</div>
+        <p>Em Space (szerokość "M"): "a m b"</p>
+        <p>En Space (szerokość "N"): "a n b"</p>
+        <p>Figure Space (szerokość cyfry): "a 1 b"</p>
+        <p>Non breaking space (niełamliwa spacja): "a b"</p>
+    </div>
+
+    <h2>Integracja z Dokumentami Google <span class="new">NOWOŚĆ!</span></h2>
+
+    <div class="example">
+        <div class="example-title">Jak używać z Dokumentami Google</div>
+        <p>Wtyczka została rozszerzona o pełną obsługę Dokumentów Google, co pozwala na wykrywanie niewidocznych znaków w edytowalnych dokumentach.</p>
+        <ol>
+            <li>Otwórz dowolny dokument w Google Docs</li>
+            <li>Kliknij ikonę wtyczki na pasku narzędzi Chrome</li>
+            <li>Naciśnij przycisk "Podświetl niewidoczne znaki"</li>
+            <li>Wszystkie niewidoczne znaki zostaną podświetlone w dokumencie</li>
+            <li>Możesz nawigować między znalezionymi znakami używając przycisków "Poprzedni" i "Następny"</li>
+        </ol>
+        <p>Przykłady problemów, które możesz wykryć w Google Docs:</p>
+        <ul>
+            <li>Niewidoczne spacje, które powodują problemy z formatowaniem</li>
+            <li>Znaki kontroli kierunku tekstu, które mogą wpływać na wyrównanie</li>
+            <li>Nieoczekiwane znaki z edycji lub kopiowania tekstu z innych źródeł</li>
+            <li>Znaki specjalne dodane przez asystentów pisania lub narzędzia formatujące</li>
+        </ul>
+    </div>
+
     <h2>Tabela popularnych niewidocznych znaków</h2>
     
     <table>
@@ -156,6 +220,21 @@
             <td>Byte Order Mark</td>
             <td>U+FEFF</td>
             <td>﻿Na początku pliku tekstowego (niewidoczny)</td>
+        </tr>
+        <tr>
+            <td>Non breaking space</td>
+            <td>U+00A0</td>
+            <td>Spacja, która nie pozwala na łamanie wierszy (przykład: 100 km)</td>
+        </tr>
+        <tr>
+            <td>Paragraph separator</td>
+            <td>U+2029</td>
+            <td>Separator akapitu (niewidoczny)</td>
+        </tr>
+        <tr>
+            <td>Line separator</td>
+            <td>U+2028</td>
+            <td>Separator linii (niewidoczny)</td>
         </tr>
     </table>
 
@@ -190,6 +269,7 @@
 
     <div class="info">
         <p><strong>Podsumowanie:</strong> Na tej stronie znajduje się wiele ukrytych niewidocznych znaków, które mogą powodować problemy w kopiowaniu treści, prowadzić do błędów lub być wykorzystywane w złośliwych celach. Wtyczka "Wykrywacz niewidocznych znaków" pomaga je wykryć i podświetlić.</p>
+        <p><strong>Nowe funkcje:</strong> Wtyczka została zaktualizowana o obsługę Dokumentów Google oraz rozszerzoną listę 85+ znaków. Teraz możesz łatwo znajdować problematyczne niewidoczne znaki w swoich dokumentach Google!</p>
     </div>
 
     <footer style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; color: #777;">

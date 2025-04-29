@@ -10,6 +10,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     clearHighlights();
     sendResponse({ success: true });
     return true;
+  } else if (message.action === 'scrollToChar') {
+    const result = scrollToHighlightedChar(message.index);
+    sendResponse({ success: result });
+    return true;
   }
 });
 
@@ -17,6 +21,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function highlightInvisibleChars(chars) {
   // Usuń istniejące podświetlenia
   clearHighlights();
+  
+  // Sprawdź, czy jesteśmy w Dokumentach Google
+  const isGoogleDocs = window.location.hostname.includes('docs.google.com');
   
   // Znajdź wszystkie węzły tekstowe na stronie
   const textNodes = [];
@@ -31,7 +38,8 @@ function highlightInvisibleChars(chars) {
       parent.tagName === 'STYLE' ||
       parent.tagName === 'TEXTAREA' ||
       parent.tagName === 'INPUT' ||
-      parent.isContentEditable
+      // Nie pomijamy elementów contentEditable, jeśli jesteśmy w Dokumentach Google
+      (!isGoogleDocs && parent.isContentEditable)
     )) {
       continue;
     }
@@ -43,6 +51,9 @@ function highlightInvisibleChars(chars) {
   chars.forEach(char => {
     counts[char.name] = 0;
   });
+  
+  let totalHighlighted = 0;
+  let uniqueId = 0; // Dodajemy unikalny identyfikator dla każdego znalezionego znaku
   
   // Przeszukaj każdy węzeł tekstowy
   textNodes.forEach(textNode => {
@@ -56,11 +67,13 @@ function highlightInvisibleChars(chars) {
       const matches = text.match(regex);
       
       if (matches) {
-        counts[char.name] = (counts[char.name] || 0) + matches.length;
+        const matchCount = matches.length;
+        counts[char.name] = (counts[char.name] || 0) + matchCount;
         
-        // Zamień niewidoczny znak na oznaczony span
+        // Zamień każde wystąpienie na unikalny marker
         text = text.replace(regex, (match) => {
-          return `###INVISIBLE_CHAR_${char.code}###`;
+          uniqueId++;
+          return `###INVISIBLE_CHAR_${char.code}_${uniqueId}###`;
         });
         
         modified = true;
@@ -70,27 +83,34 @@ function highlightInvisibleChars(chars) {
     if (modified) {
       // Utwórz nowy element zawierający podświetlone znaki
       const fragment = document.createDocumentFragment();
-      const parts = text.split(/###INVISIBLE_CHAR_([^#]+)###/g);
+      const parts = text.split(/###INVISIBLE_CHAR_([^#_]+)_(\d+)###/g);
       
       for (let i = 0; i < parts.length; i++) {
-        if (i % 2 === 0) {
+        if (i % 3 === 0) {
           // Zwykły tekst
           fragment.appendChild(document.createTextNode(parts[i]));
-        } else {
+        } else if (i % 3 === 1) {
           // Kod znaku
           const code = parts[i];
+          const id = parts[i+1]; // Ignorujemy identyfikator, potrzebny tylko do rozróżnienia markerów
+          
           const span = document.createElement('span');
           span.className = 'invisible-char-highlight';
-          span.title = `Niewidoczny znak: ${code}`;
-          span.dataset.code = code;
           
           // Dodaj rzeczywisty znak, ale w podświetleniu
           const charObj = chars.find(c => c.code === code);
+          
+          // Dodanie nazwy znaku do podpowiedzi
+          span.title = `Niewidoczny znak: ${charObj ? charObj.name : ''} (${code})`;
+          span.dataset.code = code;
+          span.dataset.charIndex = ++totalHighlighted; // Przypisz indeks do znaku
+          
           if (charObj) {
             span.textContent = charObj.value;
           }
           
           fragment.appendChild(span);
+          i++; // Pomiń następny element (identyfikator)
         }
       }
       
@@ -100,7 +120,106 @@ function highlightInvisibleChars(chars) {
     }
   });
   
+  // Obsługa specyficzna dla Dokumentów Google - dodatkowe skanowanie edytowalnej zawartości
+  if (isGoogleDocs) {
+    totalHighlighted += scanGoogleDocsContent(chars, counts);
+  }
+  
   return counts;
+}
+
+// Funkcja do skanowania zawartości Dokumentów Google
+function scanGoogleDocsContent(chars, counts) {
+  // Znajdujemy główny edytowalny obszar w Dokumentach Google
+  const editorElements = document.querySelectorAll('.kix-appview-editor');
+  
+  if (editorElements.length === 0) return 0;
+  
+  // Główny edytor Dokumentów Google
+  const editor = editorElements[0];
+  
+  // Znajdujemy wszystkie linie tekstu w edytorze
+  const lineElements = editor.querySelectorAll('.kix-lineview-content');
+  
+  let totalHighlightedInDocs = 0;
+  let uniqueId = 10000; // Zaczynamy od wysokiej wartości, aby uniknąć kolizji z innymi identyfikatorami
+  
+  lineElements.forEach(lineElement => {
+    // Znajdujemy wszystkie span'y z tekstem
+    const textSpans = lineElement.querySelectorAll('.kix-wordhtmlgenerator-word-node');
+    
+    textSpans.forEach(span => {
+      let text = span.textContent;
+      let modified = false;
+      
+      chars.forEach(char => {
+        if (!char.value) return;
+        
+        const regex = new RegExp(escapeRegExp(char.value), 'g');
+        const matches = text.match(regex);
+        
+        if (matches) {
+          counts[char.name] = (counts[char.name] || 0) + matches.length;
+          totalHighlightedInDocs += matches.length;
+          
+          // W przypadku Google Docs tworzymy osobny span dla każdego znaku
+          matches.forEach(() => {
+            uniqueId++;
+            
+            // Tworzymy nowego spana z podświetleniem
+            const highlightSpan = document.createElement('span');
+            highlightSpan.className = 'invisible-char-highlight gdocs-highlight';
+            highlightSpan.title = `Niewidoczny znak: ${char.name} (${char.code})`;
+            highlightSpan.dataset.code = char.code;
+            highlightSpan.dataset.charIndex = uniqueId;
+            highlightSpan.textContent = char.value;
+            
+            // Dodajemy do oryginalnego spana informację
+            span.style.position = 'relative';
+            span.appendChild(highlightSpan);
+          });
+          
+          modified = true;
+        }
+      });
+    });
+  });
+  
+  return totalHighlightedInDocs;
+}
+
+// Funkcja do przewijania do określonego znaku
+function scrollToHighlightedChar(index) {
+  // Znajdź znak o danym indeksie
+  const charElement = document.querySelector(`.invisible-char-highlight[data-char-index="${index}"]`);
+  
+  if (charElement) {
+    // Usuń klasę aktywną ze wszystkich znaków
+    document.querySelectorAll('.invisible-char-highlight.active').forEach(el => {
+      el.classList.remove('active');
+    });
+    
+    // Dodaj klasę aktywną do bieżącego znaku
+    charElement.classList.add('active');
+    
+    // Przewiń do znaku
+    charElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+    
+    // Opcjonalnie: dodaj dodatkowe efekty wizualne
+    charElement.style.transition = 'all 0.3s';
+    charElement.style.transform = 'scale(1.5)';
+    
+    setTimeout(() => {
+      charElement.style.transform = 'scale(1)';
+    }, 500);
+    
+    return true;
+  }
+  
+  return false;
 }
 
 // Funkcja usuwająca podświetlenia
@@ -109,8 +228,15 @@ function clearHighlights() {
   
   // Przywróć oryginalne znaki
   highlights.forEach(highlight => {
-    const text = document.createTextNode(highlight.textContent);
-    highlight.parentNode.replaceChild(text, highlight);
+    // Sprawdzamy, czy to highlight w Google Docs
+    if (highlight.classList.contains('gdocs-highlight')) {
+      // Usuwamy tylko element highlight, nie zmieniając oryginalnego tekstu
+      highlight.parentNode.removeChild(highlight);
+    } else {
+      // Standardowe zachowanie dla zwykłych stron
+      const text = document.createTextNode(highlight.textContent);
+      highlight.parentNode.replaceChild(text, highlight);
+    }
   });
 }
 

@@ -51,6 +51,62 @@ const defaultChars = [
   { name: 'Variation Selector-14', code: 'U+FE0D', value: '\uFE0D' },
   { name: 'Variation Selector-15', code: 'U+FE0E', value: '\uFE0E' },
   { name: 'Variation Selector-16', code: 'U+FE0F', value: '\uFE0F' },
+  
+  // Nowe dodane znaki
+  { name: 'En dash', code: 'U+2013', value: '\u2013' },
+  { name: 'Left single quotation mark', code: 'U+2018', value: '\u2018' },
+  { name: 'Right single quotation mark', code: 'U+2019', value: '\u2019' },
+  { name: 'Paragraph separator', code: 'U+2029', value: '\u2029' },
+  { name: 'End of text', code: 'U+0003', value: '\u0003' },
+  { name: 'Line tabulation', code: 'U+000B', value: '\u000B' },
+  { name: 'Non breaking space', code: 'U+00A0', value: '\u00A0' },
+  { name: 'Left double quotation mark', code: 'U+201C', value: '\u201C' },
+  { name: 'Right double quotation mark', code: 'U+201D', value: '\u201D' },
+  { name: 'Pop directional formatting', code: 'U+202C', value: '\u202C' },
+  
+  // Dodatkowe znaki zaproponowane w analizie
+  // Kontrolne znaki formatujące
+  { name: 'Form Feed', code: 'U+000C', value: '\u000C' },
+  { name: 'Carriage Return', code: 'U+000D', value: '\u000D' },
+  
+  // Białe znaki
+  { name: 'Em Space', code: 'U+2003', value: '\u2003' },
+  { name: 'En Space', code: 'U+2002', value: '\u2002' },
+  { name: 'Thin Space', code: 'U+2009', value: '\u2009' },
+  { name: 'Figure Space', code: 'U+2007', value: '\u2007' },
+  { name: 'Punctuation Space', code: 'U+2008', value: '\u2008' },
+  
+  // Znaki matematyczne
+  { name: 'Mathematical Minus', code: 'U+2212', value: '\u2212' },
+  { name: 'Multiplication Sign', code: 'U+00D7', value: '\u00D7' },
+  { name: 'Division Sign', code: 'U+00F7', value: '\u00F7' },
+  
+  // Inne znaki strukturalne
+  { name: 'Line Separator', code: 'U+2028', value: '\u2028' },
+  { name: 'Ogham Space Mark', code: 'U+1680', value: '\u1680' },
+  { name: 'Arabic Letter Mark', code: 'U+061C', value: '\u061C' },
+  { name: 'Left-to-right embedding', code: 'U+202A', value: '\u202A' },
+  { name: 'Right-to-left embedding', code: 'U+202B', value: '\u202B' },
+  
+  // Znaki wizualnie podobne do standardowych
+  { name: 'Greek Question Mark', code: 'U+037E', value: '\u037E' },
+  { name: 'Full-width Semicolon', code: 'U+FF1B', value: '\uFF1B' },
+  { name: 'Full-width Comma', code: 'U+FF0C', value: '\uFF0C' },
+  { name: 'Full-width Period', code: 'U+FF0E', value: '\uFF0E' },
+  
+  // Specjalne separatory
+  { name: 'Four-Per-Em Space', code: 'U+2005', value: '\u2005' },
+  { name: 'Six-Per-Em Space', code: 'U+2006', value: '\u2006' },
+  
+  // Inne znaki sterujące
+  { name: 'Substitute', code: 'U+001A', value: '\u001A' },
+  { name: 'Escape', code: 'U+001B', value: '\u001B' },
+  { name: 'Delete', code: 'U+007F', value: '\u007F' },
+  
+  // Dodatkowe różne
+  { name: 'Interlinear Annotation Anchor', code: 'U+FFF9', value: '\uFFF9' },
+  { name: 'Interlinear Annotation Separator', code: 'U+FFFA', value: '\uFFFA' },
+  { name: 'Interlinear Annotation Terminator', code: 'U+FFFB', value: '\uFFFB' },
   { name: 'Language Tag', code: 'U+E0001', value: '\uE0001' },
   { name: 'Tag Space', code: 'U+E0020', value: '\uE0020' },
   { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' }
@@ -224,53 +280,85 @@ highlightBtn.addEventListener('click', () => {
         return;
       }
       
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        function: highlightInvisibleChars,
-        args: [checkedChars]
-      }, (results) => {
-        if (chrome.runtime.lastError) {
-          resultsElement.textContent = `Błąd: ${chrome.runtime.lastError.message}`;
-          resultsElement.style.color = 'red';
-          navigationControls.style.display = 'none';
-          return;
-        }
-        
-        // Przetwarzanie wyników
-        if (results && results[0] && results[0].result) {
-          const { counts, totalHighlighted } = results[0].result;
-          
-          // Aktualizuj licznik i pokaż kontrolki nawigacji
-          totalCharsFound = totalHighlighted;
-          currentCharIndex = totalHighlighted > 0 ? 1 : 0;
-          updatePositionCounter();
-          
-          // Wyświetl wyniki
-          if (totalHighlighted > 0) {
-            let resultsText = `Znaleziono ${totalHighlighted} niewidocznych znaków:<br>`;
-            
-            Object.keys(counts).forEach(name => {
-              if (counts[name] > 0) {
-                resultsText += `${name}: ${counts[name]}<br>`;
-              }
+      // Najpierw wyślij wiadomość do content script w celu podświetlenia znaków
+      chrome.tabs.sendMessage(
+        tabs[0].id,
+        { action: 'highlightChars', chars: checkedChars },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            // Jeśli wystąpił błąd komunikacji (content script nie działa), wstrzyknij i uruchom
+            chrome.scripting.executeScript({
+              target: { tabId: tabs[0].id },
+              files: ['content.js']
+            }, () => {
+              // Po załadowaniu content.js ponów próbę wysłania wiadomości
+              setTimeout(() => {
+                chrome.tabs.sendMessage(
+                  tabs[0].id,
+                  { action: 'highlightChars', chars: checkedChars },
+                  (newResponse) => {
+                    if (chrome.runtime.lastError) {
+                      resultsElement.textContent = `Błąd: ${chrome.runtime.lastError.message}`;
+                      resultsElement.style.color = 'red';
+                      navigationControls.style.display = 'none';
+                      return;
+                    }
+                    displayResults(newResponse);
+                  }
+                );
+              }, 100); // Daj czas na załadowanie content.js
             });
-            
-            resultsElement.innerHTML = resultsText;
-            navigationControls.style.display = 'block';
-          } else {
-            resultsElement.textContent = 'Nie znaleziono niewidocznych znaków na stronie.';
-            navigationControls.style.display = 'none';
+            return;
           }
           
-          // Jeśli znaleziono znaki, skocz do pierwszego
-          if (totalCharsFound > 0) {
-            navigateToChar(1);
-          }
+          displayResults(response);
         }
-      });
+      );
     });
   });
 });
+
+// Wyświetl wyniki skanowania
+function displayResults(counts) {
+  if (!counts) {
+    resultsElement.textContent = 'Nie udało się przetworzyć wyników.';
+    navigationControls.style.display = 'none';
+    return;
+  }
+  
+  // Oblicz całkowitą liczbę znalezionych znaków
+  let totalHighlighted = 0;
+  Object.values(counts).forEach(count => {
+    totalHighlighted += count;
+  });
+  
+  // Aktualizuj licznik i pokaż kontrolki nawigacji
+  totalCharsFound = totalHighlighted;
+  currentCharIndex = totalHighlighted > 0 ? 1 : 0;
+  updatePositionCounter();
+  
+  // Wyświetl wyniki
+  if (totalHighlighted > 0) {
+    let resultsText = `Znaleziono ${totalHighlighted} niewidocznych znaków:<br>`;
+    
+    Object.keys(counts).forEach(name => {
+      if (counts[name] > 0) {
+        resultsText += `${name}: ${counts[name]}<br>`;
+      }
+    });
+    
+    resultsElement.innerHTML = resultsText;
+    navigationControls.style.display = 'block';
+  } else {
+    resultsElement.textContent = 'Nie znaleziono niewidocznych znaków na stronie.';
+    navigationControls.style.display = 'none';
+  }
+  
+  // Jeśli znaleziono znaki, skocz do pierwszego
+  if (totalCharsFound > 0) {
+    navigateToChar(1);
+  }
+}
 
 // Wyczyść podświetlenia na aktywnej stronie
 clearBtn.addEventListener('click', () => {
@@ -281,21 +369,23 @@ clearBtn.addEventListener('click', () => {
       return; // Nie wykonuj akcji na chronionych stronach
     }
     
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      function: clearHighlights
-    }, () => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.message);
-        return;
+    // Wyślij wiadomość do content script
+    chrome.tabs.sendMessage(
+      tabs[0].id,
+      { action: 'clearHighlights' },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.message);
+          return;
+        }
+        
+        resultsElement.textContent = 'Podświetlenia zostały usunięte.';
+        navigationControls.style.display = 'none';
+        totalCharsFound = 0;
+        currentCharIndex = 0;
+        updatePositionCounter();
       }
-      
-      resultsElement.textContent = 'Podświetlenia zostały usunięte.';
-      navigationControls.style.display = 'none';
-      totalCharsFound = 0;
-      currentCharIndex = 0;
-      updatePositionCounter();
-    });
+    );
   });
 });
 
@@ -324,15 +414,16 @@ nextCharBtn.addEventListener('click', () => {
 // Funkcja do nawigacji do określonego znaku
 function navigateToChar(index) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      function: scrollToHighlightedChar,
-      args: [index]
-    }, () => {
-      // Aktualizuj licznik pozycji
-      currentCharIndex = index;
-      updatePositionCounter();
-    });
+    // Wyślij wiadomość do content script
+    chrome.tabs.sendMessage(
+      tabs[0].id,
+      { action: 'scrollToChar', index },
+      (response) => {
+        // Aktualizuj licznik pozycji
+        currentCharIndex = index;
+        updatePositionCounter();
+      }
+    );
   });
 }
 
@@ -341,155 +432,4 @@ function updatePositionCounter() {
   currentPositionEl.textContent = totalCharsFound > 0 
     ? `${currentCharIndex}/${totalCharsFound}` 
     : '0/0';
-}
-
-// Funkcja wykonywana na stronie - podświetlanie znaków
-function highlightInvisibleChars(chars) {
-  // Najpierw usuń istniejące podświetlenia
-  clearHighlights();
-  
-  // Dodaj plik stylów do strony, jeśli jeszcze nie istnieje
-  if (!document.querySelector('link[href*="styles.css"]')) {
-    const link = document.createElement('link');
-    link.href = chrome.runtime.getURL('styles.css');
-    link.type = 'text/css';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-  }
-  
-  // Znajdź wszystkie węzły tekstowe na stronie
-  const textNodes = [];
-  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-  
-  let node;
-  while (node = walk.nextNode()) {
-    // Pomijamy węzły w elementach script, style, textarea, itp.
-    const parent = node.parentNode;
-    if (parent && (
-      parent.tagName === 'SCRIPT' ||
-      parent.tagName === 'STYLE' ||
-      parent.tagName === 'TEXTAREA' ||
-      parent.tagName === 'INPUT' ||
-      parent.isContentEditable
-    )) {
-      continue;
-    }
-    
-    textNodes.push(node);
-  }
-  
-  const counts = {};
-  chars.forEach(char => {
-    counts[char.name] = 0;
-  });
-  
-  let totalHighlighted = 0;
-  let uniqueId = 0; // Dodajemy unikalny identyfikator dla każdego znalezionego znaku
-  
-  // Przeszukaj każdy węzeł tekstowy
-  textNodes.forEach(textNode => {
-    let text = textNode.nodeValue;
-    let modified = false;
-    
-    chars.forEach(char => {
-      const regex = new RegExp(char.value, 'g');
-      const matches = text.match(regex);
-      
-      if (matches) {
-        const matchCount = matches.length;
-        counts[char.name] += matchCount;
-        
-        // Zamień każde wystąpienie na unikalny marker
-        text = text.replace(regex, (match) => {
-          uniqueId++;
-          return `###INVISIBLE_CHAR_${char.code}_${uniqueId}###`;
-        });
-        
-        modified = true;
-      }
-    });
-    
-    if (modified) {
-      // Utwórz nowy element zawierający podświetlone znaki
-      const fragment = document.createDocumentFragment();
-      const parts = text.split(/###INVISIBLE_CHAR_([^#_]+)_(\d+)###/g);
-      
-      for (let i = 0; i < parts.length; i++) {
-        if (i % 3 === 0) {
-          // Zwykły tekst
-          fragment.appendChild(document.createTextNode(parts[i]));
-        } else if (i % 3 === 1) {
-          // Kod znaku
-          const code = parts[i];
-          const id = parts[i+1]; // Ignorujemy identyfikator, potrzebny tylko do rozróżnienia markerów
-          
-          const span = document.createElement('span');
-          span.className = 'invisible-char-highlight';
-          span.title = `Niewidoczny znak: ${code}`;
-          span.dataset.code = code;
-          span.dataset.charIndex = ++totalHighlighted; // Przypisz indeks do znaku
-          
-          // Dodaj rzeczywisty znak, ale w podświetleniu
-          const charObj = chars.find(c => c.code === code);
-          if (charObj) {
-            span.textContent = charObj.value;
-          }
-          
-          fragment.appendChild(span);
-          i++; // Pomiń następny element (identyfikator)
-        }
-      }
-      
-      // Zastąp oryginalny węzeł tekstowy
-      const parent = textNode.parentNode;
-      parent.replaceChild(fragment, textNode);
-    }
-  });
-  
-  return { counts, totalHighlighted };
-}
-
-// Funkcja do przewijania do określonego znaku
-function scrollToHighlightedChar(index) {
-  // Znajdź znak o danym indeksie
-  const charElement = document.querySelector(`.invisible-char-highlight[data-char-index="${index}"]`);
-  
-  if (charElement) {
-    // Usuń klasę aktywną ze wszystkich znaków
-    document.querySelectorAll('.invisible-char-highlight.active').forEach(el => {
-      el.classList.remove('active');
-    });
-    
-    // Dodaj klasę aktywną do bieżącego znaku
-    charElement.classList.add('active');
-    
-    // Przewiń do znaku
-    charElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-    
-    // Opcjonalnie: dodaj dodatkowe efekty wizualne
-    charElement.style.transition = 'all 0.3s';
-    charElement.style.transform = 'scale(1.5)';
-    
-    setTimeout(() => {
-      charElement.style.transform = 'scale(1)';
-    }, 500);
-    
-    return true;
-  }
-  
-  return false;
-}
-
-// Funkcja wykonywana na stronie - usuwanie podświetleń
-function clearHighlights() {
-  const highlights = document.querySelectorAll('.invisible-char-highlight');
-  
-  // Przywróć oryginalne znaki
-  highlights.forEach(highlight => {
-    const text = document.createTextNode(highlight.textContent);
-    highlight.parentNode.replaceChild(text, highlight);
-  });
 }

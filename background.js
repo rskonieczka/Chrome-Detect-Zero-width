@@ -56,7 +56,64 @@ const defaultChars = [
   { name: 'Variation Selector-16', code: 'U+FE0F', value: '\uFE0F' },
   { name: 'Language Tag', code: 'U+E0001', value: '\uE0001' },
   { name: 'Tag Space', code: 'U+E0020', value: '\uE0020' },
-  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' }
+  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' },
+  
+  // Nowe dodane znaki
+  { name: 'En dash', code: 'U+2013', value: '\u2013' },
+  { name: 'Left single quotation mark', code: 'U+2018', value: '\u2018' },
+  { name: 'Right single quotation mark', code: 'U+2019', value: '\u2019' },
+  { name: 'Paragraph separator', code: 'U+2029', value: '\u2029' },
+  { name: 'End of text', code: 'U+0003', value: '\u0003' },
+  { name: 'Line tabulation', code: 'U+000B', value: '\u000B' },
+  { name: 'Non breaking space', code: 'U+00A0', value: '\u00A0' },
+  { name: 'Left double quotation mark', code: 'U+201C', value: '\u201C' },
+  { name: 'Right double quotation mark', code: 'U+201D', value: '\u201D' },
+  { name: 'Pop directional formatting', code: 'U+202C', value: '\u202C' },
+  
+  // Dodatkowe znaki zaproponowane w analizie
+  // Kontrolne znaki formatujące
+
+  { name: 'Form Feed', code: 'U+000C', value: '\u000C' },
+  { name: 'Carriage Return', code: 'U+000D', value: '\u000D' },
+  
+  // Białe znaki
+  { name: 'Em Space', code: 'U+2003', value: '\u2003' },
+  { name: 'En Space', code: 'U+2002', value: '\u2002' },
+  { name: 'Thin Space', code: 'U+2009', value: '\u2009' },
+  { name: 'Figure Space', code: 'U+2007', value: '\u2007' },
+  { name: 'Punctuation Space', code: 'U+2008', value: '\u2008' },
+  
+  // Znaki matematyczne
+  { name: 'Mathematical Minus', code: 'U+2212', value: '\u2212' },
+  { name: 'Multiplication Sign', code: 'U+00D7', value: '\u00D7' },
+  { name: 'Division Sign', code: 'U+00F7', value: '\u00F7' },
+  
+  // Inne znaki strukturalne
+  { name: 'Line Separator', code: 'U+2028', value: '\u2028' },
+  { name: 'Ogham Space Mark', code: 'U+1680', value: '\u1680' },
+  { name: 'Arabic Letter Mark', code: 'U+061C', value: '\u061C' },
+  { name: 'Left-to-right embedding', code: 'U+202A', value: '\u202A' },
+  { name: 'Right-to-left embedding', code: 'U+202B', value: '\u202B' },
+  
+  // Znaki wizualnie podobne do standardowych
+  { name: 'Greek Question Mark', code: 'U+037E', value: '\u037E' },
+  { name: 'Full-width Semicolon', code: 'U+FF1B', value: '\uFF1B' },
+  { name: 'Full-width Comma', code: 'U+FF0C', value: '\uFF0C' },
+  { name: 'Full-width Period', code: 'U+FF0E', value: '\uFF0E' },
+  
+  // Specjalne separatory
+  { name: 'Four-Per-Em Space', code: 'U+2005', value: '\u2005' },
+  { name: 'Six-Per-Em Space', code: 'U+2006', value: '\u2006' },
+  
+  // Inne znaki sterujące
+  { name: 'Substitute', code: 'U+001A', value: '\u001A' },
+  { name: 'Escape', code: 'U+001B', value: '\u001B' },
+  { name: 'Delete', code: 'U+007F', value: '\u007F' },
+  
+  // Dodatkowe różne
+  { name: 'Interlinear Annotation Anchor', code: 'U+FFF9', value: '\uFFF9' },
+  { name: 'Interlinear Annotation Separator', code: 'U+FFFA', value: '\uFFFA' },
+  { name: 'Interlinear Annotation Terminator', code: 'U+FFFB', value: '\uFFFB' }
 ];
 
 // Inicjalizacja - wczytaj zapisane ustawienia
@@ -232,12 +289,15 @@ function highlightInvisibleChars(chars) {
           
           const span = document.createElement('span');
           span.className = 'invisible-char-highlight';
-          span.title = `Niewidoczny znak: ${code}`;
-          span.dataset.code = code;
-          span.dataset.charIndex = ++totalHighlighted;
           
           // Dodaj rzeczywisty znak, ale w podświetleniu
           const charObj = chars.find(c => c.code === code);
+          
+          // Dodanie nazwy znaku do podpowiedzi
+          span.title = `Niewidoczny znak: ${charObj ? charObj.name : ''} (${code})`;
+          span.dataset.code = code;
+          span.dataset.charIndex = ++totalHighlighted;
+          
           if (charObj) {
             span.textContent = charObj.value;
           }
