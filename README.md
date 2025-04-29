@@ -183,5 +183,4 @@ MIT
 
 ## Autor
 
-Oryginalny pomysł i implementacja: Roman Skonieczka
-Rozszerzenie funkcjonalności: Zespół Windsurf
+Oryginalny pomysł i implementacja: Rafał Skonieczka
