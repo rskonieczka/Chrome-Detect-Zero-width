@@ -1,6 +1,11 @@
 # Wykrywacz niewidocznych znaków
 
-Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niewidocznych znaków, takich jak zero-width space (U+200B) i zero-width non-joiner (U+200C).
+Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niewidocznych znaków, takich jak np. zero-width space (U+200B) czy zero-width non-joiner (U+200C).
+
+## Zastosowanie
+
+Niewidoczne znaki mogą być używane do różnych celów, np. do omijania filtrów słów, do ukrycia złośliwych linków, do tworzenia fałszywych kont w mediach społecznościowych. Dzięki wtyczce, użytkownicy mogą wykryć te znaki, co zwiększa ich bezpieczeństwo w Internecie. Dodatkowo, wtyczka pozwala na badanie, jakie znaki są używane na stronach internetowych, co może być interesujące dla programistów i entuzjastów związanych z tematyką bezpieczeństwa.
+
 
 ## Funkcje
 
