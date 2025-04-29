@@ -58,7 +58,7 @@ Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niew
 
 ## Podgląd działania
 
-![Podgląd działania wtyczki](images/podglad.png)
+![Podgląd działania wtyczki](podglad.png)
 
 *Na powyższym obrazku widać interfejs wtyczki oraz sposób podświetlania niewidocznych znaków na stronie.*
 
