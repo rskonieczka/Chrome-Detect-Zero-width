@@ -53,7 +53,16 @@ const defaultChars = [
   { name: 'Variation Selector-16', code: 'U+FE0F', value: '\uFE0F' },
   { name: 'Language Tag', code: 'U+E0001', value: '\uE0001' },
   { name: 'Tag Space', code: 'U+E0020', value: '\uE0020' },
-  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' }
+  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' },
+  
+  // Wzorce tekstowe
+  { name: 'Podwójna spacja', code: 'PATTERN', value: '  ', pattern: true },
+  { name: 'Spacja przed kropką', code: 'PATTERN', value: ' .', pattern: true },
+  { name: 'Spacja przed przecinkiem', code: 'PATTERN', value: ' ,', pattern: true },
+  { name: 'Spacja przed średnikiem', code: 'PATTERN', value: ' ;', pattern: true },
+  { name: 'Spacja przed dwukropkiem', code: 'PATTERN', value: ' :', pattern: true },
+  { name: 'Spacja przed wykrzyknikiem', code: 'PATTERN', value: ' !', pattern: true },
+  { name: 'Spacja przed pytajnikiem', code: 'PATTERN', value: ' ?', pattern: true }
 ];
 
 // Elementy DOM
@@ -191,8 +200,10 @@ highlightBtn.addEventListener('click', () => {
     
     // Pobierz zaznaczone znaki
     const checkedChars = [];
-    document.querySelectorAll('.char-item input:checked').forEach((checkbox, index) => {
-      if (checkbox.checked && chars[index]) {
+    const checkboxes = document.querySelectorAll('.char-checkbox');
+    
+    checkboxes.forEach((checkbox, index) => {
+      if (checkbox.checked) {
         checkedChars.push(chars[index]);
       }
     });
@@ -204,33 +215,52 @@ highlightBtn.addEventListener('click', () => {
     
     // Wykonaj skrypt na aktywnej karcie
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      // Sprawdź, czy URL nie jest typu chrome:// lub about:
+      const currentUrl = tabs[0].url;
+      if (currentUrl.startsWith('chrome://') || currentUrl.startsWith('about:')) {
+        resultsElement.textContent = 'Wtyczka nie ma dostępu do stron chrome:// lub about://';
+        resultsElement.style.color = 'red';
+        navigationControls.style.display = 'none';
+        return;
+      }
+      
       chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         function: highlightInvisibleChars,
         args: [checkedChars]
       }, (results) => {
+        if (chrome.runtime.lastError) {
+          resultsElement.textContent = `Błąd: ${chrome.runtime.lastError.message}`;
+          resultsElement.style.color = 'red';
+          navigationControls.style.display = 'none';
+          return;
+        }
+        
+        // Przetwarzanie wyników
         if (results && results[0] && results[0].result) {
-          const counts = results[0].result.counts;
-          totalCharsFound = results[0].result.totalHighlighted;
-          let totalCount = 0;
-          let resultsHtml = '<h3>Wyniki wyszukiwania:</h3><ul>';
+          const { counts, totalHighlighted } = results[0].result;
           
-          Object.keys(counts).forEach(charName => {
-            resultsHtml += `<li>${charName}: ${counts[charName]} wystąpień</li>`;
-            totalCount += counts[charName];
-          });
-          
-          resultsHtml += '</ul>';
-          resultsHtml += `<p>Razem: ${totalCount} niewidocznych znaków</p>`;
-          
-          resultsElement.innerHTML = resultsHtml;
-          
-          // Resetuj indeks i aktualizuj licznik pozycji
-          currentCharIndex = totalCharsFound > 0 ? 1 : 0;
+          // Aktualizuj licznik i pokaż kontrolki nawigacji
+          totalCharsFound = totalHighlighted;
+          currentCharIndex = totalHighlighted > 0 ? 1 : 0;
           updatePositionCounter();
           
-          // Pokaż kontrolki nawigacji, jeśli znaleziono znaki
-          navigationControls.style.display = totalCharsFound > 0 ? 'block' : 'none';
+          // Wyświetl wyniki
+          if (totalHighlighted > 0) {
+            let resultsText = `Znaleziono ${totalHighlighted} niewidocznych znaków:<br>`;
+            
+            Object.keys(counts).forEach(name => {
+              if (counts[name] > 0) {
+                resultsText += `${name}: ${counts[name]}<br>`;
+              }
+            });
+            
+            resultsElement.innerHTML = resultsText;
+            navigationControls.style.display = 'block';
+          } else {
+            resultsElement.textContent = 'Nie znaleziono niewidocznych znaków na stronie.';
+            navigationControls.style.display = 'none';
+          }
           
           // Jeśli znaleziono znaki, skocz do pierwszego
           if (totalCharsFound > 0) {
@@ -245,17 +275,27 @@ highlightBtn.addEventListener('click', () => {
 // Wyczyść podświetlenia na aktywnej stronie
 clearBtn.addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    // Sprawdź, czy URL nie jest typu chrome:// lub about:
+    const currentUrl = tabs[0].url;
+    if (currentUrl.startsWith('chrome://') || currentUrl.startsWith('about:')) {
+      return; // Nie wykonuj akcji na chronionych stronach
+    }
+    
     chrome.scripting.executeScript({
       target: { tabId: tabs[0].id },
       function: clearHighlights
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+        return;
+      }
+      
+      resultsElement.textContent = 'Podświetlenia zostały usunięte.';
+      navigationControls.style.display = 'none';
+      totalCharsFound = 0;
+      currentCharIndex = 0;
+      updatePositionCounter();
     });
-    
-    resultsElement.innerHTML = 'Podświetlenia zostały usunięte.';
-    
-    // Ukryj kontrolki nawigacji
-    navigationControls.style.display = 'none';
-    currentCharIndex = 0;
-    totalCharsFound = 0;
   });
 });
 
@@ -288,11 +328,11 @@ function navigateToChar(index) {
       target: { tabId: tabs[0].id },
       function: scrollToHighlightedChar,
       args: [index]
+    }, () => {
+      // Aktualizuj licznik pozycji
+      currentCharIndex = index;
+      updatePositionCounter();
     });
-    
-    // Aktualizuj licznik pozycji
-    currentCharIndex = index;
-    updatePositionCounter();
   });
 }
 
@@ -330,46 +370,68 @@ function highlightInvisibleChars(chars) {
     let modified = false;
     
     chars.forEach(char => {
-      const regex = new RegExp(char.value, 'g');
-      const matches = text.match(regex);
-      
-      if (matches) {
-        counts[char.name] += matches.length;
+      if (char.pattern) {
+        const regex = new RegExp(char.value, 'g');
+        const matches = text.match(regex);
         
-        // Zamień niewidoczny znak na oznaczony span
-        text = text.replace(regex, (match) => {
-          return `###INVISIBLE_CHAR_${char.code}###`;
-        });
+        if (matches) {
+          counts[char.name] += matches.length;
+          
+          // Zamień wzorzec na oznaczony span
+          text = text.replace(regex, (match) => {
+            return `###PATTERN_${char.name}###`;
+          });
+          
+          modified = true;
+        }
+      } else {
+        const regex = new RegExp(char.value, 'g');
+        const matches = text.match(regex);
         
-        modified = true;
+        if (matches) {
+          counts[char.name] += matches.length;
+          
+          // Zamień niewidoczny znak na oznaczony span
+          text = text.replace(regex, (match) => {
+            return `###INVISIBLE_CHAR_${char.code}###`;
+          });
+          
+          modified = true;
+        }
       }
     });
     
     if (modified) {
       // Utwórz nowy element zawierający podświetlone znaki
       const fragment = document.createDocumentFragment();
-      const parts = text.split(/###INVISIBLE_CHAR_([^#]+)###/g);
+      const parts = text.split(/###(PATTERN_|INVISIBLE_CHAR_)([^#]+)###/g);
       
       for (let i = 0; i < parts.length; i++) {
         if (i % 2 === 0) {
           // Zwykły tekst
           fragment.appendChild(document.createTextNode(parts[i]));
         } else {
-          // Kod znaku
-          const code = parts[i];
+          // Kod znaku lub wzorca
+          const type = parts[i];
+          const code = parts[i + 1];
           const span = document.createElement('span');
           span.className = 'invisible-char-highlight';
-          span.title = `Niewidoczny znak: ${code}`;
+          span.title = `Niewidoczny znak lub wzorzec: ${code}`;
           span.dataset.code = code;
           span.dataset.charIndex = ++totalHighlighted; // Przypisz indeks do znaku
           
           // Dodaj rzeczywisty znak, ale w podświetleniu
-          const charObj = chars.find(c => c.code === code);
+          const charObj = chars.find(c => c.code === code || c.name === code);
           if (charObj) {
-            span.textContent = charObj.value;
+            if (charObj.pattern) {
+              span.textContent = charObj.value;
+            } else {
+              span.textContent = charObj.value;
+            }
           }
           
           fragment.appendChild(span);
+          i++; // Pomiń następny element (kod znaku lub wzorca)
         }
       }
       
