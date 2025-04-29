@@ -94,17 +94,26 @@ autoScanToggle.addEventListener('change', () => {
   
   // Zapisz ustawienie
   chrome.storage.sync.set({ autoScanEnabled: isEnabled }, () => {
-    // Powiadom background script o zmianie ustawienia
-    chrome.runtime.sendMessage({ action: 'autoScanSettingChanged', isEnabled });
-    
-    // Opcjonalnie: zastosuj zmianę natychmiast na aktualnej stronie
-    if (isEnabled) {
-      // Jeśli włączono tryb automatyczny, od razu wykonaj skanowanie na obecnej stronie
-      highlightBtn.click();
-    } else {
-      // Jeśli wyłączono, usuń podświetlenia
-      clearBtn.click();
-    }
+    // Powiadom background script o zmianie ustawienia i obsłuż odpowiedź
+    chrome.runtime.sendMessage(
+      { action: 'autoScanSettingChanged', isEnabled },
+      (response) => {
+        // Opcjonalna obsługa odpowiedzi (nie musimy nic robić z odpowiedzią)
+        // Jeśli wystąpi błąd komunikacji, logujemy go
+        if (chrome.runtime.lastError) {
+          console.log('Komunikacja z background script: ', chrome.runtime.lastError.message);
+        }
+        
+        // Opcjonalnie: zastosuj zmianę natychmiast na aktualnej stronie
+        if (isEnabled) {
+          // Jeśli włączono tryb automatyczny, od razu wykonaj skanowanie na obecnej stronie
+          highlightBtn.click();
+        } else {
+          // Jeśli wyłączono, usuń podświetlenia
+          clearBtn.click();
+        }
+      }
+    );
   });
 });
 

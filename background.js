@@ -76,10 +76,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     // Aktualizuj ikonę, aby pokazać, czy tryb automatyczny jest włączony
     updateExtensionIcon(autoScanEnabled);
+    
+    // Wysyłamy potwierdzenie, że ustawienie zostało zmienione
+    sendResponse({ success: true });
   }
-  
-  // Zawsze zwracaj true, aby obsłużyć komunikację asynchroniczną
-  return true;
 });
 
 // Funkcja aktualizująca ikonę wtyczki
