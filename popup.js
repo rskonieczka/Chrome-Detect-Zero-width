@@ -126,7 +126,7 @@ function displayCharsList(chars) {
     item.className = 'char-item';
     
     item.innerHTML = `
-      <input type="checkbox" id="char-${index}" checked>
+      <input type="checkbox" id="char-${index}" class="char-checkbox" checked>
       <label for="char-${index}">${char.name}</label>
       <span class="char-code">${char.code}</span>
     `;
