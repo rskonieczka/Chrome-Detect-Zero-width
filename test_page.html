@@ -188,6 +188,108 @@
         </ul>
     </div>
 
+    <h2>Sekcja praktycznych testów <span class="new">NOWOŚĆ!</span></h2>
+
+    <div class="example">
+        <div class="example-title">Test 1: Ciąg wszystkich białych znaków</div>
+        <p>Skopiuj ten tekst, aby przetestować różne białe znaki: normalna spacja [ ] - zero-width space [​] - hair space [ ] - thin space [ ] - em space [ ] - en space [ ] - figure space [ ] - punctuation space [ ] - non-breaking space [ ]</p>
+        <textarea style="width: 100%; height: 60px;">To jest tekst do testowania białych znaków: normalna spacja [ ] - zero-width space [​] - hair space [ ] - thin space [ ] - em space [ ] - en space [ ] - figure space [ ] - punctuation space [ ] - non-breaking space [ ]</textarea>
+    </div>
+
+    <div class="example">
+        <div class="example-title">Test 2: Mieszanka znaków specjalnych</div>
+        <p>Ten paragraf zawiera mieszankę znaków specjalnych i niewidocznych. Po aktywacji wtyczki przetestuj nawigację między tymi znakami:</p>
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+            To jest​ tekst z zero-width space. To jest​ tekst z left-to-right mark. To jest text z Tab [	] ukrytym w środku. To jest text​ z <span style="color:blue;">wieloma</span>​ niewidocznymi​ znakami. Tutaj jest cudzysłów "typograficzny" i myślnik – a tutaj znak⁣separatora.
+        </div>
+        <p><button onclick="copyToClipboard('test2')" style="margin-top: 5px; padding: 5px 10px; background-color: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Kopiuj do schowka</button></p>
+        <p id="test2" style="display: none;">To jest​ tekst z zero-width space. To jest​ tekst z left-to-right mark. To jest text z Tab [	] ukrytym w środku. To jest text​ z wieloma​ niewidocznymi​ znakami. Tutaj jest cudzysłów "typograficzny" i myślnik – a tutaj znak⁣separatora.</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">Test 3: Znaki kontroli kierunku tekstu</div>
+        <p>Poniższy tekst zawiera znaki kontroli kierunku, które mogą wpływać na formatowanie tekstu:</p>
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+            Normalny tekst. ‎Tekst z left-to-right mark.‏ Tekst z right-to-left mark. ‪Tekst z left-to-right embed.‬ ‫Tekst z right-to-left embed.‭ ‮Tekst z right-to-left override (niebezpieczny).‬
+        </div>
+        <p><button onclick="copyToClipboard('test3')" style="margin-top: 5px; padding: 5px 10px; background-color: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Kopiuj do schowka</button></p>
+        <p id="test3" style="display: none;">Normalny tekst. ‎Tekst z left-to-right mark.‏ Tekst z right-to-left mark. ‪Tekst z left-to-right embed.‬ ‫Tekst z right-to-left embed.‭ ‮Tekst z right-to-left override (niebezpieczny).‬</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">Test 4: Praktyczny test dla Google Docs</div>
+        <p>Poniżej znajduje się tekst do skopiowania i wklejenia do Dokumentów Google. Zawiera on różne niewidoczne znaki, które wtyczka powinna wykryć:</p>
+        <textarea style="width: 100%; height: 120px;">To jest przykład​ tekstu z niewidocznymi znakami do przetestowania w Dokumentach Google.
+
+W tym akapicie znajdują się ​znaki zero-width space. Niektóre słowa mają również ‌znak zero-width non-joiner. W tekście jest także  Tab, NBSP  oraz ⁠znak word-joiner.
+
+Ten akapit zawiera ‎znaki​ kontroli ‏kierunku tekstu, które mogą powodować problemy przy edycji. Na końcu linii umieszczono znak końca akapitu.</textarea>
+        <p><button onclick="copyDocTest()" style="margin-top: 5px; padding: 5px 10px; background-color: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Kopiuj do schowka dla Google Docs</button></p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">Test 5: Poważniejszy przykład - tekst z formatowaniem HTML</div>
+        <p>Poniższy kod HTML zawiera ukryte znaki, które mogą wpłynąć na działanie i wygląd strony:</p>
+        <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>&lt;div class="container"&gt;
+  &lt;h2​&gt;Witaj na stronie!&lt;/h2&gt;
+  &lt;p​&gt;Ten paragraf zawiera &lt;span class="highlight"​&gt;ukryte znaki&lt;/span​&gt;.&lt;/p&gt;
+  &lt;a href="https:​//example.com"&gt;Link z ukrytym znakiem&lt;/a&gt;
+  &lt;input type="text" value="Wartość​ z ukrytym znakiem"&gt;
+&lt;/div&gt;</code></pre>
+        <p><button onclick="copyToClipboard('test5')" style="margin-top: 5px; padding: 5px 10px; background-color: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Kopiuj do schowka</button></p>
+        <p id="test5" style="display: none;">&lt;div class="container"&gt;
+  &lt;h2​&gt;Witaj na stronie!&lt;/h2&gt;
+  &lt;p​&gt;Ten paragraf zawiera &lt;span class="highlight"​&gt;ukryte znaki&lt;/span​&gt;.&lt;/p&gt;
+  &lt;a href="https:​//example.com"&gt;Link z ukrytym znakiem&lt;/a&gt;
+  &lt;input type="text" value="Wartość​ z ukrytym znakiem"&gt;
+&lt;/div&gt;</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">Test 6: Złośliwe wykorzystanie niewidocznych znaków</div>
+        <p>Ten przykład pokazuje, jak niewidoczne znaki mogą być używane do ukrywania złośliwego kodu:</p>
+        <pre style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>function loggedIn() {
+  // Sprawdź uprawnienia użytkownika
+  if (user.isAdmin​()) { // Uwaga! Ukryty znak!
+    console.log("Użytkownik ma uprawnienia administratora");
+    return true;
+  }
+  console.log("Użytkownik nie ma uprawnień administratora");
+  return false;
+}</code></pre>
+        <p class="warning">W powyższym kodzie, funkcja <code>isAdmin​()</code> zawiera ukryty znak, który sprawia, że funkcja nigdy nie jest wywoływana! Zamiast tego, wyrażenie jest zawsze prawdziwe, co może prowadzić do nadania uprawnień nieautoryzowanym użytkownikom.</p>
+        <p><button onclick="copyToClipboard('test6')" style="margin-top: 5px; padding: 5px 10px; background-color: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Kopiuj do schowka</button></p>
+        <p id="test6" style="display: none;">function loggedIn() {
+  // Sprawdź uprawnienia użytkownika
+  if (user.isAdmin​()) { // Uwaga! Ukryty znak!
+    console.log("Użytkownik ma uprawnienia administratora");
+    return true;
+  }
+  console.log("Użytkownik nie ma uprawnień administratora");
+  return false;
+}</p>
+    </div>
+
+    <script>
+      function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Skopiowano do schowka! Teraz możesz wkleić tekst w dowolnym miejscu i użyć wtyczki do wykrycia niewidocznych znaków.');
+        }, (err) => {
+          console.error('Nie udało się skopiować tekstu: ', err);
+        });
+      }
+      
+      function copyDocTest() {
+        const text = document.querySelector('textarea').value;
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Skopiowano do schowka! Teraz wklej ten tekst w Dokumentach Google i użyj wtyczki do wykrycia niewidocznych znaków.');
+        }, (err) => {
+          console.error('Nie udało się skopiować tekstu: ', err);
+        });
+      }
+    </script>
+
     <h2>Tabela popularnych niewidocznych znaków</h2>
     
     <table>

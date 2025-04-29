@@ -190,13 +190,29 @@ function scanTab(tabId) {
     const validChars = chars.filter(char => char.value);
     
     if (validChars.length > 0) {
-      // Wykonaj skanowanie strony
-      chrome.scripting.executeScript({
-        target: { tabId },
-        function: highlightInvisibleChars,
-        args: [validChars]
-      }).catch(error => {
-        console.error('Błąd podczas wykonywania skryptu:', error);
+      // Najpierw sprawdź, czy content.js jest już załadowany, próbując wysłać wiadomość
+      chrome.tabs.sendMessage(tabId, { action: 'ping' }, (response) => {
+        const contentScriptLoaded = !chrome.runtime.lastError && response && response.status === 'ok';
+        
+        if (contentScriptLoaded) {
+          // Content script jest już załadowany, więc możemy po prostu wysłać wiadomość
+          chrome.tabs.sendMessage(tabId, { action: 'highlightChars', chars: validChars });
+        } else {
+          // Content script nie jest załadowany, musimy go wstrzyknąć
+          chrome.scripting.executeScript({
+            target: { tabId },
+            files: ['content.js']
+          })
+          .then(() => {
+            // Po załadowaniu content.js, wysyłamy znaki do podświetlenia
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tabId, { action: 'highlightChars', chars: validChars });
+            }, 100); // Małe opóźnienie, aby content.js miał czas się załadować
+          })
+          .catch(error => {
+            console.error('Błąd podczas wstrzykiwania content.js:', error);
+          });
+        }
       });
     }
   });

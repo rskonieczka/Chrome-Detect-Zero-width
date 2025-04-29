@@ -14,6 +14,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const result = scrollToHighlightedChar(message.index);
     sendResponse({ success: result });
     return true;
+  } else if (message.action === 'ping') {
+    // Odpowiedź na ping, aby background.js wiedział, że content.js jest załadowany
+    sendResponse({ status: 'ok' });
+    return true;
   }
 });
 
