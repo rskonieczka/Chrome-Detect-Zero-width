@@ -8,7 +8,6 @@ Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niew
 - Możliwość dostosowania listy wyszukiwanych znaków
 - Statystyki znalezionych znaków
 - Wyraźne podświetlanie niewidocznych znaków z animacją
-- Wykrywanie wzorców tekstowych (podwójne spacje, spacje przed znakami interpunkcyjnymi)
 - Obsługa chronionych stron (chrome://, about://)
 
 ## Domyślnie wyszukiwane znaki
@@ -49,15 +48,6 @@ Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niew
 - Language Tag (U+E0001) - tag języka
 - Tag Space (U+E0020) - spacja używana w tagach
 - Cancel Tag (U+E007F) - anuluje działanie tagu
-
-### Wykrywane wzorce tekstowe
-- Podwójna spacja - dwie spacje występujące obok siebie
-- Spacja przed kropką - spacja występująca przed znakiem kropki
-- Spacja przed przecinkiem - spacja występująca przed znakiem przecinka
-- Spacja przed średnikiem - spacja występująca przed znakiem średnika
-- Spacja przed dwukropkiem - spacja występująca przed znakiem dwukropka
-- Spacja przed wykrzyknikiem - spacja występująca przed znakiem wykrzyknika
-- Spacja przed pytajnikiem - spacja występująca przed znakiem pytajnika
 
 ## Instalacja
 
@@ -121,7 +111,6 @@ Struktura projektu:
 ## Ostatnie aktualizacje
 
 ### Wersja 1.2 (29.04.2025)
-- Dodano wykrywanie wzorców tekstowych (podwójne spacje, spacje przed znakami interpunkcyjnymi)
 - Ulepszono interfejs użytkownika z rozwijanymi sekcjami funkcji
 - Dodano obsługę chronionych stron (chrome://, about://)
 - Rozbudowano listę wspieranych znaków Unicode (50+ typów)

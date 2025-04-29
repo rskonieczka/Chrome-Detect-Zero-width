@@ -56,16 +56,7 @@ const defaultChars = [
   { name: 'Variation Selector-16', code: 'U+FE0F', value: '\uFE0F' },
   { name: 'Language Tag', code: 'U+E0001', value: '\uE0001' },
   { name: 'Tag Space', code: 'U+E0020', value: '\uE0020' },
-  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' },
-  
-  // Wzorce tekstowe
-  { name: 'Podwójna spacja', code: 'PATTERN', value: '  ', pattern: true },
-  { name: 'Spacja przed kropką', code: 'PATTERN', value: ' .', pattern: true },
-  { name: 'Spacja przed przecinkiem', code: 'PATTERN', value: ' ,', pattern: true },
-  { name: 'Spacja przed średnikiem', code: 'PATTERN', value: ' ;', pattern: true },
-  { name: 'Spacja przed dwukropkiem', code: 'PATTERN', value: ' :', pattern: true },
-  { name: 'Spacja przed wykrzyknikiem', code: 'PATTERN', value: ' !', pattern: true },
-  { name: 'Spacja przed pytajnikiem', code: 'PATTERN', value: ' ?', pattern: true }
+  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' }
 ];
 
 // Inicjalizacja - wczytaj zapisane ustawienia
@@ -161,6 +152,7 @@ function highlightInvisibleChars(chars) {
   });
   
   let totalHighlighted = 0;
+  let uniqueId = 0; // Dodajemy unikalny identyfikator dla każdego znalezionego znaku
   
   // Przeszukaj każdy węzeł tekstowy
   textNodes.forEach(textNode => {
@@ -171,34 +163,19 @@ function highlightInvisibleChars(chars) {
       if (!char.value) return;
       
       try {
-        if (char.pattern) {
-          const regex = new RegExp(escapeRegExp(char.value), 'g');
-          const matches = text.match(regex);
+        const regex = new RegExp(escapeRegExp(char.value), 'g');
+        const matches = text.match(regex);
+        
+        if (matches) {
+          counts[char.name] = (counts[char.name] || 0) + matches.length;
           
-          if (matches) {
-            counts[char.name] = (counts[char.name] || 0) + matches.length;
-            
-            // Zamień wzorzec na oznaczony span
-            text = text.replace(regex, (match) => {
-              return `###PATTERN_${char.name}###`;
-            });
-            
-            modified = true;
-          }
-        } else {
-          const regex = new RegExp(escapeRegExp(char.value), 'g');
-          const matches = text.match(regex);
+          // Zamień każde wystąpienie na unikalny marker
+          text = text.replace(regex, (match) => {
+            uniqueId++;
+            return `###INVISIBLE_CHAR_${char.code}_${uniqueId}###`;
+          });
           
-          if (matches) {
-            counts[char.name] = (counts[char.name] || 0) + matches.length;
-            
-            // Zamień niewidoczny znak na oznaczony span
-            text = text.replace(regex, (match) => {
-              return `###INVISIBLE_CHAR_${char.code}###`;
-            });
-            
-            modified = true;
-          }
+          modified = true;
         }
       } catch (e) {
         console.error(`Błąd podczas przetwarzania znaku: ${char.code || char.name}`, e);
@@ -208,33 +185,31 @@ function highlightInvisibleChars(chars) {
     if (modified) {
       // Utwórz nowy element zawierający podświetlone znaki
       const fragment = document.createDocumentFragment();
-      const parts = text.split(/###(PATTERN_|INVISIBLE_CHAR_)([^#]+)###/g);
+      const parts = text.split(/###INVISIBLE_CHAR_([^#_]+)_(\d+)###/g);
       
       for (let i = 0; i < parts.length; i++) {
         if (i % 3 === 0) {
           // Zwykły tekst
           fragment.appendChild(document.createTextNode(parts[i]));
         } else if (i % 3 === 1) {
-          // Typ oznaczenia (PATTERN_ lub INVISIBLE_CHAR_)
-          const type = parts[i];
-          const code = parts[i+1];
+          // Kod znaku
+          const code = parts[i];
+          const id = parts[i+1]; // Ignorujemy identyfikator, potrzebny tylko do rozróżnienia markerów
+          
           const span = document.createElement('span');
           span.className = 'invisible-char-highlight';
-          span.title = type === 'PATTERN_' ? `Wzorzec: ${code}` : `Niewidoczny znak: ${code}`;
+          span.title = `Niewidoczny znak: ${code}`;
           span.dataset.code = code;
           span.dataset.charIndex = ++totalHighlighted;
           
-          // Dodaj rzeczywisty znak lub wzorzec, ale w podświetleniu
-          const charObj = type === 'PATTERN_' 
-            ? chars.find(c => c.name === code) 
-            : chars.find(c => c.code === code);
-            
+          // Dodaj rzeczywisty znak, ale w podświetleniu
+          const charObj = chars.find(c => c.code === code);
           if (charObj) {
             span.textContent = charObj.value;
           }
           
           fragment.appendChild(span);
-          i++; // Pomiń następny element (kod znaku)
+          i++; // Pomiń następny element (identyfikator)
         }
       }
       

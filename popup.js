@@ -53,16 +53,7 @@ const defaultChars = [
   { name: 'Variation Selector-16', code: 'U+FE0F', value: '\uFE0F' },
   { name: 'Language Tag', code: 'U+E0001', value: '\uE0001' },
   { name: 'Tag Space', code: 'U+E0020', value: '\uE0020' },
-  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' },
-  
-  // Wzorce tekstowe
-  { name: 'Podwójna spacja', code: 'PATTERN', value: '  ', pattern: true },
-  { name: 'Spacja przed kropką', code: 'PATTERN', value: ' .', pattern: true },
-  { name: 'Spacja przed przecinkiem', code: 'PATTERN', value: ' ,', pattern: true },
-  { name: 'Spacja przed średnikiem', code: 'PATTERN', value: ' ;', pattern: true },
-  { name: 'Spacja przed dwukropkiem', code: 'PATTERN', value: ' :', pattern: true },
-  { name: 'Spacja przed wykrzyknikiem', code: 'PATTERN', value: ' !', pattern: true },
-  { name: 'Spacja przed pytajnikiem', code: 'PATTERN', value: ' ?', pattern: true }
+  { name: 'Cancel Tag', code: 'U+E007F', value: '\uE007F' }
 ];
 
 // Elementy DOM
@@ -345,8 +336,33 @@ function updatePositionCounter() {
 
 // Funkcja wykonywana na stronie - podświetlanie znaków
 function highlightInvisibleChars(chars) {
-  // Usuń istniejące podświetlenia
-  clearHighlights();
+  // Dodaj style do strony
+  const style = document.createElement('style');
+  style.textContent = `
+    .invisible-char-highlight {
+      background-color: #ff00ff33;
+      border: 1px solid #ff00ff;
+      border-radius: 2px;
+      padding: 2px;
+      margin: 0 2px;
+      position: relative;
+      color: #ff00ff;
+    }
+    .invisible-char-highlight:hover {
+      background-color: #ff00ff66;
+    }
+    .invisible-char-highlight.active {
+      background-color: #ff00ff99;
+      box-shadow: 0 0 5px #ff00ff;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 5px #ff00ff; }
+      50% { box-shadow: 0 0 15px #ff00ff; }
+      100% { box-shadow: 0 0 5px #ff00ff; }
+    }
+  `;
+  document.head.appendChild(style);
   
   // Znajdź wszystkie węzły tekstowe na stronie
   const textNodes = [];
@@ -354,6 +370,18 @@ function highlightInvisibleChars(chars) {
   
   let node;
   while (node = walk.nextNode()) {
+    // Pomijamy węzły w elementach script, style, textarea, itp.
+    const parent = node.parentNode;
+    if (parent && (
+      parent.tagName === 'SCRIPT' ||
+      parent.tagName === 'STYLE' ||
+      parent.tagName === 'TEXTAREA' ||
+      parent.tagName === 'INPUT' ||
+      parent.isContentEditable
+    )) {
+      continue;
+    }
+    
     textNodes.push(node);
   }
   
@@ -363,6 +391,7 @@ function highlightInvisibleChars(chars) {
   });
   
   let totalHighlighted = 0;
+  let uniqueId = 0; // Dodajemy unikalny identyfikator dla każdego znalezionego znaku
   
   // Przeszukaj każdy węzeł tekstowy
   textNodes.forEach(textNode => {
@@ -370,68 +399,51 @@ function highlightInvisibleChars(chars) {
     let modified = false;
     
     chars.forEach(char => {
-      if (char.pattern) {
-        const regex = new RegExp(char.value, 'g');
-        const matches = text.match(regex);
+      const regex = new RegExp(char.value, 'g');
+      const matches = text.match(regex);
+      
+      if (matches) {
+        const matchCount = matches.length;
+        counts[char.name] += matchCount;
         
-        if (matches) {
-          counts[char.name] += matches.length;
-          
-          // Zamień wzorzec na oznaczony span
-          text = text.replace(regex, (match) => {
-            return `###PATTERN_${char.name}###`;
-          });
-          
-          modified = true;
-        }
-      } else {
-        const regex = new RegExp(char.value, 'g');
-        const matches = text.match(regex);
+        // Zamień każde wystąpienie na unikalny marker
+        text = text.replace(regex, (match) => {
+          uniqueId++;
+          return `###INVISIBLE_CHAR_${char.code}_${uniqueId}###`;
+        });
         
-        if (matches) {
-          counts[char.name] += matches.length;
-          
-          // Zamień niewidoczny znak na oznaczony span
-          text = text.replace(regex, (match) => {
-            return `###INVISIBLE_CHAR_${char.code}###`;
-          });
-          
-          modified = true;
-        }
+        modified = true;
       }
     });
     
     if (modified) {
       // Utwórz nowy element zawierający podświetlone znaki
       const fragment = document.createDocumentFragment();
-      const parts = text.split(/###(PATTERN_|INVISIBLE_CHAR_)([^#]+)###/g);
+      const parts = text.split(/###INVISIBLE_CHAR_([^#_]+)_(\d+)###/g);
       
       for (let i = 0; i < parts.length; i++) {
-        if (i % 2 === 0) {
+        if (i % 3 === 0) {
           // Zwykły tekst
           fragment.appendChild(document.createTextNode(parts[i]));
-        } else {
-          // Kod znaku lub wzorca
-          const type = parts[i];
-          const code = parts[i + 1];
+        } else if (i % 3 === 1) {
+          // Kod znaku
+          const code = parts[i];
+          const id = parts[i+1]; // Ignorujemy identyfikator, potrzebny tylko do rozróżnienia markerów
+          
           const span = document.createElement('span');
           span.className = 'invisible-char-highlight';
-          span.title = `Niewidoczny znak lub wzorzec: ${code}`;
+          span.title = `Niewidoczny znak: ${code}`;
           span.dataset.code = code;
           span.dataset.charIndex = ++totalHighlighted; // Przypisz indeks do znaku
           
           // Dodaj rzeczywisty znak, ale w podświetleniu
-          const charObj = chars.find(c => c.code === code || c.name === code);
+          const charObj = chars.find(c => c.code === code);
           if (charObj) {
-            if (charObj.pattern) {
-              span.textContent = charObj.value;
-            } else {
-              span.textContent = charObj.value;
-            }
+            span.textContent = charObj.value;
           }
           
           fragment.appendChild(span);
-          i++; // Pomiń następny element (kod znaku lub wzorca)
+          i++; // Pomiń następny element (identyfikator)
         }
       }
       
