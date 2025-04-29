@@ -125,6 +125,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // Funkcja wykonywana na stronie - skopiowana z content.js
 function highlightInvisibleChars(chars) {
+  // Dodaj plik stylów do strony, jeśli jeszcze nie istnieje
+  if (!document.querySelector('link[href*="styles.css"]')) {
+    const link = document.createElement('link');
+    link.href = chrome.runtime.getURL('styles.css');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+  
   // Znajdź wszystkie węzły tekstowe na stronie
   const textNodes = [];
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);

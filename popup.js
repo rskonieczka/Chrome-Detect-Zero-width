@@ -336,33 +336,14 @@ function updatePositionCounter() {
 
 // Funkcja wykonywana na stronie - podświetlanie znaków
 function highlightInvisibleChars(chars) {
-  // Dodaj style do strony
-  const style = document.createElement('style');
-  style.textContent = `
-    .invisible-char-highlight {
-      background-color: #ff00ff33;
-      border: 1px solid #ff00ff;
-      border-radius: 2px;
-      padding: 2px;
-      margin: 0 2px;
-      position: relative;
-      color: #ff00ff;
-    }
-    .invisible-char-highlight:hover {
-      background-color: #ff00ff66;
-    }
-    .invisible-char-highlight.active {
-      background-color: #ff00ff99;
-      box-shadow: 0 0 5px #ff00ff;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 5px #ff00ff; }
-      50% { box-shadow: 0 0 15px #ff00ff; }
-      100% { box-shadow: 0 0 5px #ff00ff; }
-    }
-  `;
-  document.head.appendChild(style);
+  // Dodaj plik stylów do strony, jeśli jeszcze nie istnieje
+  if (!document.querySelector('link[href*="styles.css"]')) {
+    const link = document.createElement('link');
+    link.href = chrome.runtime.getURL('styles.css');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
   
   // Znajdź wszystkie węzły tekstowe na stronie
   const textNodes = [];
