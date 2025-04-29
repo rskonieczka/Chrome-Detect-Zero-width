@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona testowa - niewidoczne znaki</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .example {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        .info {
+            background-color: #d5f5e3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .warning {
+            background-color: #fadbd8;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: Consolas, monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Strona testowa - niewidoczne znaki Unicode</h1>
+    
+    <p>Ta strona zawiera różne przykłady tekstu z niewidocznymi znakami Unicode. Użyj wtyczki "Wykrywacz niewidocznych znaków", aby je zlokalizować i podświetlić.</p>
+    
+    <div class="info">
+        <p><strong>Wskazówka:</strong> Kliknij ikonę wtyczki, a następnie przycisk "Podświetl niewidoczne znaki", aby zobaczyć wszystkie ukryte znaki na tej stronie.</p>
+    </div>
+
+    <h2>Przykłady z niewidocznymi znakami</h2>
+
+    <div class="example">
+        <div class="example-title">1. Zero-width space (U+200B)</div>
+        <p>Ten tekst zawiera​ niewidoczną spację o zerowej szerokości, która znajduje się pomiędzy słowami "zawiera" i "niewidoczną".</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">2. Zero-width non-joiner (U+200C)</div>
+        <p>Znak zero-width non-joiner jest używany głównie w językach, które używają ligatur, takich jak perski. Przykład: ن‌ه</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">3. Zero-width joiner (U+200D)</div>
+        <p>Zero-width joiner jest używany do tworzenia emoji z modyfikatorami. Przykład: 👨‍👩‍👧 (rodzina)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">4. Różne niewidoczne znaki</div>
+        <p>Ten tekst zawiera​ różne niewidoczne znaki: spację zerowej szerokości, znak kierunkowy​ i inne niewidoczne​ znaki.</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">5. Ukryte hasło (celowo ukryte znaki)</div>
+        <p>Hasło: 123​456​789</p>
+        <p class="warning">Uwaga: W haśle powyżej znajdują się niewidoczne znaki, które mogą utrudnić jego skopiowanie!</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">6. URL z niewidocznymi znakami</div>
+        <p>Link: <a href="https://example.com">https:​//example.com</a></p>
+        <p class="warning">Uwaga: Link zawiera niewidoczny znak, który może przekierować na inną stronę niż się spodziewasz!</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">7. Soft hyphen (U+00AD)</div>
+        <p>Słowo z miękkim łącznikiem: super­kalifragilis­tyczny­ekspi­alidocjusz</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">8. Ukryte formaty tekstu z użyciem Left-to-right mark i Right-to-left mark</div>
+        <p>Ten tekst ma ‎ukryte‏ znaki kierunkowe, które mogą wpływać na formatowanie.</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">9. Różne rodzaje spacji</div>
+        <p>Normalna spacja: "a b"</p>
+        <p>Hair space (U+200A): "a b"</p>
+        <p>Narrow no-break space (U+202F): "a b"</p>
+        <p>Medium mathematical space (U+205F): "a b"</p>
+    </div>
+
+    <h2>Tabela popularnych niewidocznych znaków</h2>
+    
+    <table>
+        <tr>
+            <th>Nazwa</th>
+            <th>Kod Unicode</th>
+            <th>Przykład użycia</th>
+        </tr>
+        <tr>
+            <td>Zero-width space</td>
+            <td>U+200B</td>
+            <td>Umożliwienie​łamania​wyrazów (niewidoczne znaki znajdują się pomiędzy słowami)</td>
+        </tr>
+        <tr>
+            <td>Zero-width non-joiner</td>
+            <td>U+200C</td>
+            <td>Zapobieganie‌łączeniu znaków w językach z ligaturami</td>
+        </tr>
+        <tr>
+            <td>Zero-width joiner</td>
+            <td>U+200D</td>
+            <td>Łączenie emoji: 👨‍👩‍👧</td>
+        </tr>
+        <tr>
+            <td>Soft hyphen</td>
+            <td>U+00AD</td>
+            <td>Długi­wyraz­z­opcjonalnym­łamaniem</td>
+        </tr>
+        <tr>
+            <td>Byte Order Mark</td>
+            <td>U+FEFF</td>
+            <td>﻿Na początku pliku tekstowego (niewidoczny)</td>
+        </tr>
+    </table>
+
+    <h2>Test funkcji matematycznych</h2>
+
+    <div class="example">
+        <div class="example-title">Niewidoczne operatory matematyczne</div>
+        <p>f⁡(x) = funkcja z niewidocznym znakiem "function application" (U+2061)</p>
+        <p>a⁢b = niewidoczny znak mnożenia (U+2062)</p>
+        <p>a⁣b = niewidoczny separator (U+2063)</p>
+        <p>a⁤b = niewidoczny plus (U+2064)</p>
+    </div>
+
+    <h2>Przypadki użycia niewidocznych znaków</h2>
+
+    <div class="example">
+        <div class="example-title">1. Fałszywe konto w mediach społecznościowych</div>
+        <p>Oryginalna nazwa: JanKowalski</p>
+        <p>Podrobiona nazwa: Jan​Kowalski (z niewidocznym znakiem)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">2. Omijanie filtrów</div>
+        <p>Niekiedy niewidoczne znaki są używane do omijania filtrów słów. Przykład: b​loku​jący​ (zawiera niewidoczne znaki)</p>
+    </div>
+
+    <div class="example">
+        <div class="example-title">3. Ukryte złośliwe linki</div>
+        <p>Bezpieczny link: https://bank.pl</p>
+        <p>Złośliwy link: https://​bank​.podrobiony.pl (wygląda podobnie, ale zawiera niewidoczne znaki)</p>
+    </div>
+
+    <div class="info">
+        <p><strong>Podsumowanie:</strong> Na tej stronie znajduje się wiele ukrytych niewidocznych znaków, które mogą powodować problemy w kopiowaniu treści, prowadzić do błędów lub być wykorzystywane w złośliwych celach. Wtyczka "Wykrywacz niewidocznych znaków" pomaga je wykryć i podświetlić.</p>
+    </div>
+
+    <footer style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; color: #777;">
+        <p>Strona testowa dla wtyczki "Wykrywacz niewidocznych znaków" &copy; 2025</p>
+    </footer>
+</body>
+</html>

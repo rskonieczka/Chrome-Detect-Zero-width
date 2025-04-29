@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Wykrywacz niewidocznych znaków</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 300px;
+      padding: 10px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      resize: vertical;
+    }
+    .char-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .char-code {
+      font-family: monospace;
+      margin-left: 5px;
+      color: #666;
+    }
+    .results {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .legend {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Wykrywacz niewidocznych znaków</h2>
+    
+    <div>
+      <button id="highlight-btn">Podświetl niewidoczne znaki</button>
+      <button id="clear-btn">Wyczyść podświetlenia</button>
+    </div>
+    
+    <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+      <label style="display: flex; align-items: center; cursor: pointer;">
+        <input type="checkbox" id="auto-scan-toggle" style="margin-right: 10px;">
+        <span style="font-weight: bold;">Tryb automatyczny</span>
+      </label>
+      <p style="margin-top: 5px; font-size: 12px; color: #666;">
+        Gdy włączony, wtyczka będzie automatycznie wyszukiwać i podświetlać niewidoczne znaki na każdej odwiedzanej stronie.
+      </p>
+    </div>
+    
+    <div class="navigation-controls" style="margin-top: 10px; display: none;" id="navigation-controls">
+      <h3>Nawigacja:</h3>
+      <div style="display: flex; gap: 5px;">
+        <button id="prev-char-btn" title="Przejdź do poprzedniego znaku">◀ Poprzedni</button>
+        <span id="current-position">0/0</span>
+        <button id="next-char-btn" title="Przejdź do następnego znaku">Następny ▶</button>
+      </div>
+    </div>
+    
+    <div>
+      <h3>Lista znaków do wyszukania:</h3>
+      <div id="chars-list">
+        <!-- Lista znaków będzie tu dynamicznie dodawana -->
+      </div>
+      
+      <h3>Dodaj/Edytuj znaki:</h3>
+      <textarea id="chars-edit" placeholder="Wprowadź znaki oddzielone przecinkami w formacie: nazwa,kod Unicode"></textarea>
+      <button id="save-chars">Zapisz listę</button>
+    </div>
+    
+    <div class="results" id="results">
+      Nie wyszukano jeszcze znaków na stronie.
+    </div>
+    
+    <div class="legend">
+      Domyślnie wyszukiwane są:
+      <ul>
+        <li>Zero-width space (U+200B)</li>
+        <li>Zero-width non-joiner (U+200C)</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

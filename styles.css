@@ -1,0 +1,47 @@
+/* Style dla podświetlania niewidocznych znaków */
+.invisible-char-highlight {
+  background-color: #ffff00;
+  border: 1px solid #ff6600;
+  border-radius: 2px;
+  padding: 0 2px;
+  margin: 0 1px;
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+/* Dodaj czerwony krzyżyk lub znacznik, aby były bardziej widoczne */
+.invisible-char-highlight::before {
+  content: '⚠️';
+  font-size: 10px;
+  position: absolute;
+  top: -7px;
+  right: -5px;
+  color: #ff0000;
+}
+
+/* Animacja podświetlenia - dodaje mruganie */
+@keyframes highlight-pulse {
+  0% { background-color: #ffff00; }
+  50% { background-color: #ffd700; }
+  100% { background-color: #ffff00; }
+}
+
+.invisible-char-highlight {
+  animation: highlight-pulse 2s infinite;
+}
+
+/* Style dla aktywnego (obecnie wybranego) znaku podczas nawigacji */
+.invisible-char-highlight.active {
+  background-color: #ff9900 !important;
+  border: 2px solid #ff0000 !important;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+  z-index: 9999;
+  animation: active-highlight-pulse 1s infinite;
+}
+
+@keyframes active-highlight-pulse {
+  0% { transform: scale(1); background-color: #ff9900; }
+  50% { transform: scale(1.2); background-color: #ff6600; }
+  100% { transform: scale(1); background-color: #ff9900; }
+}
