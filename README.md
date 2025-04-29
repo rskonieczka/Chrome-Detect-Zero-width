@@ -56,6 +56,44 @@ Wtyczka do przeglądarki Chrome służąca do wyszukiwania i podświetlania niew
 3. Kliknij przycisk "Załaduj rozpakowane" i wybierz folder z wtyczką
 4. Wtyczka powinna pojawić się na liście zainstalowanych rozszerzeń
 
+## Podgląd działania
+
+### Wykrywanie niewidocznych znaków
+
+Wtyczka podświetla niewidoczne znaki na stronie, czyniąc je łatwymi do wykrycia:
+
+```
+Normalny tekst zawiera​niewidoczne​znaki, które są trudne do zauważenia.
+```
+
+Po aktywacji wtyczki:
+
+```
+Normalny tekst [ZWSP] zawiera [ZWSP] niewidoczne [ZWSP] znaki, które są trudne do zauważenia.
+```
+
+### Interfejs użytkownika
+
+Wtyczka oferuje przejrzysty interfejs użytkownika z następującymi elementami:
+- Panel z przyciskami "Podświetl niewidoczne znaki" i "Wyczyść podświetlenia"
+- Przełącznik trybu automatycznego
+- Panel nawigacji z przyciskami "Poprzedni" i "Następny"
+- Listę wykrywanych znaków z możliwością edycji
+- Sekcję statystyk pokazującą znalezione znaki
+
+### Tryb automatyczny
+
+Po włączeniu trybu automatycznego ikona wtyczki zmienia wygląd, sygnalizując aktywny tryb:
+- Standardowa ikona: ![Standardowa ikona](images/icon48.png) (tryb manualny)
+- Ikona w trybie automatycznym: ![Ikona aktywna](images/icon48_active.png) (skanowanie automatyczne)
+
+### Nawigacja po znakach
+
+Po znalezieniu niewidocznych znaków, wtyczka umożliwia nawigację między nimi:
+- Aktualnie wybrany znak jest podświetlony z animacją pulsowania
+- Licznik pokazuje bieżącą pozycję i łączną liczbę znalezionych znaków (np. "3/7")
+- Przyciski "Poprzedni" i "Następny" pozwalają łatwo przemieszczać się między znakami
+
 ## Użycie
 
 1. Kliknij ikonę wtyczki na pasku narzędzi Chrome
