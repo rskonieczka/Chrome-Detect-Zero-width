@@ -336,6 +336,9 @@ function updatePositionCounter() {
 
 // Funkcja wykonywana na stronie - podświetlanie znaków
 function highlightInvisibleChars(chars) {
+  // Najpierw usuń istniejące podświetlenia
+  clearHighlights();
+  
   // Dodaj plik stylów do strony, jeśli jeszcze nie istnieje
   if (!document.querySelector('link[href*="styles.css"]')) {
     const link = document.createElement('link');

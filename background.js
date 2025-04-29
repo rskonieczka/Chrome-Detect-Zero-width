@@ -125,6 +125,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // Funkcja wykonywana na stronie - skopiowana z content.js
 function highlightInvisibleChars(chars) {
+  // Najpierw usuń istniejące podświetlenia
+  clearHighlights();
+  
   // Dodaj plik stylów do strony, jeśli jeszcze nie istnieje
   if (!document.querySelector('link[href*="styles.css"]')) {
     const link = document.createElement('link');
@@ -229,6 +232,15 @@ function highlightInvisibleChars(chars) {
   });
   
   return { counts, totalHighlighted };
+}
+
+// Funkcja usuwająca istniejące podświetlenia
+function clearHighlights() {
+  const highlights = document.querySelectorAll('.invisible-char-highlight');
+  highlights.forEach(highlight => {
+    const parent = highlight.parentNode;
+    parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+  });
 }
 
 // Pomocnicza funkcja do escapowania znaków specjalnych w wyrażeniach regularnych
